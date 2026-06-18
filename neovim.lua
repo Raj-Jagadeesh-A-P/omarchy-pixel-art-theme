@@ -1,6 +1,6 @@
 return {
 	{
-		"Raj-Jagadeesh-A-P/pixel-art",
+		"Raj-Jagadeesh-A-P/omarchy-pixel-art-theme",
 		priority = 1000,
 		config = function()
 			vim.g.pixel_art_background = "hard"
