@@ -1,6 +1,8 @@
 # Pixel Art Theme
 
-A retro-inspired Omarchy theme that brings pixel-art aesthetics to your desktop. With carefully chosen colors, crisp visuals, and nostalgic design elements, it captures the charm of classic 8-bit and 16-bit games while remaining clean, readable, and practical for everyday use.
+A retro-inspired Omarchy theme that brings pixel-art aesthetics to your desktop. With nostalgic design elements, it captures the idea of classic 8-bit and 16-bit games and maintains everyday use.
+
+![Pixel-Art Preview](preview.png)
 
 ## Color Palette
 
