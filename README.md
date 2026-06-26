@@ -4,6 +4,20 @@ A retro-inspired Omarchy theme that brings pixel-art aesthetics to your desktop.
 
 ![Pixel-Art Preview](preview.png)
 
+## Installation
+
+### Via Omarchy Menu
+
+1. Press **Super + Alt + Space** → **Install** → **Style** → **Theme**
+2. Paste this repo's GitHub URL and confirm
+3. After the theme is applied, run the one-time icon installer:
+
+```bash
+bash ~/.config/omarchy/themes/pixel-art/install-icons.sh
+```
+
+This symlinks the bundled Pixora icon pack to `~/.local/share/icons/` and creates a `theme-set` hook so icons persist on every theme switch.
+
 ## Color Palette
 
 Based on a crafted dark palette:
