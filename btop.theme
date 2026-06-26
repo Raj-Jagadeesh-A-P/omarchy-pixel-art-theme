@@ -1,6 +1,4 @@
-
 # Btop pixel-art theme
-# by Marco Radocchia
 
 # Main background, empty for terminal default, need to be empty if you want transparent background
 #theme[main_bg]=""
