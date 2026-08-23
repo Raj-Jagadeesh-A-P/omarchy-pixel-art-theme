@@ -2,120 +2,97 @@
 
 # install.sh
 # Run once after `omarchy theme install <url>` to:
-#   1. Install the bundled Pixora icon pack system-wide
-#   2. Deploy the custom Waybar style and config
-#   3. Create a theme-set hook so everything persists on theme switch
+#   1. Install the bundled Pixora icon pack
+#   2. Create a theme-set.d hook so icons persist on every theme switch
+#
+# Omarchy 4+ (Quattro). The shell, bar, launcher, notifications and lock
+# screen are themed automatically from colors.toml — no extra setup needed.
 #
 # Usage: bash ~/.config/omarchy/themes/pixel-art/install.sh
 
-THEME_DIR="$HOME/.config/omarchy/themes/pixel-art"
-CURRENT_THEME_DIR="$HOME/.config/omarchy/current/theme"
-HOOK_FILE="$HOME/.config/omarchy/hooks/theme-set"
-
 set -e
+
+THEME_NAME="pixel-art"
+THEME_DIR="$HOME/.config/omarchy/themes/$THEME_NAME"
+CURRENT_THEME_DIR="$HOME/.local/state/omarchy/current/theme"
+HOOK_FILE="$HOME/.config/omarchy/hooks/theme-set.d/$THEME_NAME-icons.sh"
+LEGACY_HOOK="$HOME/.config/omarchy/hooks/theme-set"
 
 # ---------------------------------------------------------------------------
 # 1. Install Pixora icon themes
 # ---------------------------------------------------------------------------
+install_icons() {
+  local src="$1"
+  local dst="$HOME/.local/share/icons"
+
+  mkdir -p "$dst"
+  ln -sfn "$src/pixelitos-dark"  "$dst/pixelitos-dark"
+  ln -sfn "$src/pixelitos-light" "$dst/pixelitos-light"
+  ln -sfn "$src/icons"           "$dst/pixora"
+
+  gtk-update-icon-cache "$dst/pixora"         2>/dev/null || true
+  gtk-update-icon-cache "$dst/pixelitos-dark" 2>/dev/null || true
+  gtk-update-icon-cache "$dst/pixelitos-light" 2>/dev/null || true
+}
+
+# Prefer the staged copy in the current theme, fall back to this repo clone.
 ICONS_SRC="$CURRENT_THEME_DIR/icons/pixora-icons"
-ICONS_DST="$HOME/.local/share/icons"
+[[ -d $ICONS_SRC ]] || ICONS_SRC="$THEME_DIR/icons/pixora-icons"
 
-echo ":: Installing Pixora icon themes → $ICONS_DST"
-mkdir -p "$ICONS_DST"
-ln -sf "$ICONS_SRC/pixelitos-dark"  "$ICONS_DST/pixelitos-dark"
-ln -sf "$ICONS_SRC/pixelitos-light" "$ICONS_DST/pixelitos-light"
-ln -sf "$ICONS_SRC/icons"           "$ICONS_DST/pixora"
-
-gtk-update-icon-cache "$ICONS_DST/pixora"         2>/dev/null || true
-gtk-update-icon-cache "$ICONS_DST/pixelitos-dark" 2>/dev/null || true
-gtk-update-icon-cache "$ICONS_DST/pixelitos-light" 2>/dev/null || true
-echo "✓ Icon themes installed: pixora, pixelitos-dark, pixelitos-light"
-
-# ---------------------------------------------------------------------------
-# 2. Deploy Waybar config
-# ---------------------------------------------------------------------------
-WAYBAR_SRC="$CURRENT_THEME_DIR/waybar"
-WAYBAR_DST="$HOME/.config/waybar"
-
-if [ -d "$WAYBAR_SRC" ]; then
-  echo ":: Deploying Waybar config → $WAYBAR_DST"
-  mkdir -p "$WAYBAR_DST"
-
-  if [ -f "$WAYBAR_DST/style.css" ]; then
-    cp "$WAYBAR_DST/style.css" "$WAYBAR_DST/style.css.bak.$(date +%s)"
-    echo "  → backed up existing style.css"
-  fi
-  cp "$WAYBAR_SRC/style.css" "$WAYBAR_DST/style.css"
-
-  if [ -f "$WAYBAR_DST/config.jsonc" ]; then
-    cp "$WAYBAR_DST/config.jsonc" "$WAYBAR_DST/config.jsonc.bak.$(date +%s)"
-    echo "  → backed up existing config.jsonc"
-  fi
-  cp "$WAYBAR_SRC/config.jsonc" "$WAYBAR_DST/config.jsonc"
-
-  echo "✓ Waybar config deployed"
-
-  if pgrep -x waybar >/dev/null; then
-    echo "  → restarting waybar..."
-    pkill -9 -x waybar
-    setsid uwsm-app -- waybar >/dev/null 2>&1 &
-    echo "  → waybar restarted"
-  fi
+if [[ -d $ICONS_SRC ]]; then
+  echo ":: Installing Pixora icon themes → $HOME/.local/share/icons"
+  install_icons "$ICONS_SRC"
+  echo "✓ Icon themes installed: pixora, pixelitos-dark, pixelitos-light"
+else
+  echo "! Bundled icons not found (looked in $CURRENT_THEME_DIR and $THEME_DIR)" >&2
 fi
 
 # ---------------------------------------------------------------------------
-# 3. Install / update the theme-set hook
+# 2. Remove stale legacy hook from the Omarchy 3.x version of this theme
+# ---------------------------------------------------------------------------
+if [[ -f $LEGACY_HOOK ]] && grep -q "Installed by pixel-art theme" "$LEGACY_HOOK" 2>/dev/null; then
+  rm -f "$LEGACY_HOOK"
+  echo "✓ Removed legacy theme-set hook (replaced by theme-set.d)"
+fi
+
+# ---------------------------------------------------------------------------
+# 3. Install persistence hook (additive — lives in theme-set.d)
 # ---------------------------------------------------------------------------
 mkdir -p "$(dirname "$HOOK_FILE")"
 
-if [ -f "$HOOK_FILE" ]; then
-  echo "  → theme-set hook exists — updating with waybar support"
-fi
-
 cat > "$HOOK_FILE" << 'HOOK'
 #!/bin/bash
-# Installed by pixel-art theme — re-links Pixora icons and re-deploys
-# Waybar config on every theme switch.
-# This hook is called automatically by omarchy-theme-set after a theme change.
+# Installed by pixel-art theme — re-links bundled Pixora icons on every
+# theme switch so they never go missing when Omarchy re-stages themes.
+# Called by omarchy-hook theme-set <theme-name>.
 
-THEME_DIR="$HOME/.config/omarchy/current/theme"
+THEME_NAME="pixel-art"
+CURRENT_THEME_DIR="$HOME/.local/state/omarchy/current/theme"
+FALLBACK_DIR="$HOME/.config/omarchy/themes/$THEME_NAME"
+ICON_DST="$HOME/.local/share/icons"
 
-# --- Icons ---
-ICONS_SRC="$THEME_DIR/icons/pixora-icons"
-ICONS_DST="$HOME/.local/share/icons"
+ICONS_SRC="$CURRENT_THEME_DIR/icons/pixora-icons"
+[[ -d $ICONS_SRC ]] || ICONS_SRC="$FALLBACK_DIR/icons/pixora-icons"
+[[ -d $ICONS_SRC ]] || exit 0
 
-if [ -d "$ICONS_SRC" ]; then
-  mkdir -p "$ICONS_DST"
-  ln -sf "$ICONS_SRC/pixelitos-dark"  "$ICONS_DST/pixelitos-dark"
-  ln -sf "$ICONS_SRC/pixelitos-light" "$ICONS_DST/pixelitos-light"
-  ln -sf "$ICONS_SRC/icons"           "$ICONS_DST/pixora"
-  gtk-update-icon-cache "$ICONS_DST/pixora"         2>/dev/null || true
-  gtk-update-icon-cache "$ICONS_DST/pixelitos-dark" 2>/dev/null || true
-  gtk-update-icon-cache "$ICONS_DST/pixelitos-light" 2>/dev/null || true
-fi
+mkdir -p "$ICON_DST"
+ln -sfn "$ICONS_SRC/pixelitos-dark"  "$ICON_DST/pixelitos-dark"
+ln -sfn "$ICONS_SRC/pixelitos-light" "$ICON_DST/pixelitos-light"
+ln -sfn "$ICONS_SRC/icons"           "$ICON_DST/pixora"
 
-# --- Waybar ---
-WAYBAR_SRC="$THEME_DIR/waybar"
-WAYBAR_DST="$HOME/.config/waybar"
-
-if [ -d "$WAYBAR_SRC" ]; then
-  mkdir -p "$WAYBAR_DST"
-  cp "$WAYBAR_SRC/style.css"    "$WAYBAR_DST/style.css"
-  cp "$WAYBAR_SRC/config.jsonc" "$WAYBAR_DST/config.jsonc"
-  if pgrep -x waybar >/dev/null; then
-    pkill -9 -x waybar
-    setsid uwsm-app -- waybar >/dev/null 2>&1 &
-  fi
-fi
+gtk-update-icon-cache "$ICON_DST/pixora"         2>/dev/null || true
+gtk-update-icon-cache "$ICON_DST/pixelitos-dark" 2>/dev/null || true
+gtk-update-icon-cache "$ICON_DST/pixelitos-light" 2>/dev/null || true
 HOOK
+
 chmod +x "$HOOK_FILE"
-echo "✓ theme-set hook installed at $HOOK_FILE"
+echo "✓ Persistence hook installed at $HOOK_FILE"
 
 # ---------------------------------------------------------------------------
-# 4. Apply icon theme
+# 4. Apply icon theme now (omarchy-theme-set-gnome also applies it from
+#    icons.theme on every future theme switch)
 # ---------------------------------------------------------------------------
 gsettings set org.gnome.desktop.interface icon-theme "pixora" 2>/dev/null || true
 
 echo ""
-echo "Done! Everything is set up."
-echo "If you switch themes later, the hook will re-apply icons + waybar automatically."
+echo "Done! Switch to the theme via Super + Alt + Space → Style → Theme → pixel-art."

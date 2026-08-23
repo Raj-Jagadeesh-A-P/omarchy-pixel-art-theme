@@ -1,33 +1,34 @@
-# Core UI colors
-accent = "#83A598"                 # Pixel Art blue as primary accent
-cursor = "#D5C4A1"                 # Cursor color
-foreground = "#D5C4A1"             # Primary text color
-background = "#1D2021"             # Pixel Art Dark background
+# Pixel Art theme — Omarchy 4 (Quattro) colors.toml
+# Palette: Gruvbox-inspired pixel-art dark
 
-selection_foreground = "#D5C4A1"   # Selected text
-selection_background = "#665C54"   # Selection background
+mode = "dark"
 
-# --------------------------------------------------
-# Base16-aligned 16-color palette (Pixel Art Dark)
-# --------------------------------------------------
+accent = "#83A598"             # Pixel Art blue as primary accent
+selection = "#665C54"          # Selection background
+muted = "#7C6F64"              # Dim / inactive elements
 
-# base00–base07 (normal)
-color0  = "#1D2021"  # base00 - Deep background
-color1  = "#CC241D"  # base08 - Error / critical
-color2  = "#B8BB26"  # base0B - Success / positive
-color3  = "#D79921"  # base0A - Warning / attention
-color4  = "#83A598"  # base0D - Primary accent
-color5  = "#D3869B"  # base0E - Secondary accent
-color6  = "#8EC07C"  # base0C - Informational
-color7  = "#D5C4A1"  # base05 - Default foreground
+background = "#1D2021"         # Pixel Art Dark background
+dark_background = "#141414"    # Sunk panels, wells
+darker_background = "#101010"  # Deepest layer (lock screen, OSD)
+lighter_background = "#282828" # Raised surfaces, cards
 
-# base08–base0F (bright)
-color8  = "#665C54"  # base03 - Dim / inactive
-color9  = "#CC241D"  # base08 - Bright error
-color10 = "#B8BB26"  # base0B - Bright success
-color11 = "#D79921"  # base0A - Bright warning
-color12 = "#83A598"  # base0D - Bright accent
-color13 = "#D3869B"  # base0E - Bright secondary
-color14 = "#B8BB26"  # base0C - Bright info (as provided)
-color15 = "#EBDBB2"  # base07 - Highest-contrast text
+foreground = "#D5C4A1"         # Primary text
+dark_foreground = "#665C54"    # Low-emphasis text
+light_foreground = "#EBDBB2"   # Emphasized text
+bright_foreground = "#EBDBB2"  # Highest-contrast text
 
+red = "#CC241D"
+yellow = "#D79921"
+orange = "#E78A4E"
+green = "#B8BB26"
+cyan = "#8EC07C"
+blue = "#83A598"
+magenta = "#D3869B"
+brown = "#70432E"
+
+bright_red = "#EA6962"
+bright_yellow = "#E78A4E"
+bright_green = "#A9B665"
+bright_cyan = "#89B482"
+bright_blue = "#7DAEA3"
+bright_magenta = "#D3869B"
