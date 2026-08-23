@@ -64,6 +64,9 @@ cat > "$HOOK_FILE" << 'HOOK'
 #!/bin/bash
 # Installed by pixel-art theme — re-links bundled Pixora icons on every
 # theme switch so they never go missing when Omarchy re-stages themes.
+# Also force-syncs the wallpaper: Quattro's shell reads the background
+# symlink only at startup / via IPC, so a missed IPC during a switch
+# leaves the old image on screen.
 # Called by omarchy-hook theme-set <theme-name>.
 
 THEME_NAME="pixel-art"
@@ -71,18 +74,23 @@ CURRENT_THEME_DIR="$HOME/.local/state/omarchy/current/theme"
 FALLBACK_DIR="$HOME/.config/omarchy/themes/$THEME_NAME"
 ICON_DST="$HOME/.local/share/icons"
 
+# --- Icons ---
 ICONS_SRC="$CURRENT_THEME_DIR/icons/pixora-icons"
 [[ -d $ICONS_SRC ]] || ICONS_SRC="$FALLBACK_DIR/icons/pixora-icons"
-[[ -d $ICONS_SRC ]] || exit 0
 
-mkdir -p "$ICON_DST"
-ln -sfn "$ICONS_SRC/pixelitos-dark"  "$ICON_DST/pixelitos-dark"
-ln -sfn "$ICONS_SRC/pixelitos-light" "$ICON_DST/pixelitos-light"
-ln -sfn "$ICONS_SRC/icons"           "$ICON_DST/pixora"
+if [[ -d $ICONS_SRC ]]; then
+  mkdir -p "$ICON_DST"
+  ln -sfn "$ICONS_SRC/pixelitos-dark"  "$ICON_DST/pixelitos-dark"
+  ln -sfn "$ICONS_SRC/pixelitos-light" "$ICON_DST/pixelitos-light"
+  ln -sfn "$ICONS_SRC/icons"           "$ICON_DST/pixora"
 
-gtk-update-icon-cache "$ICON_DST/pixora"         2>/dev/null || true
-gtk-update-icon-cache "$ICON_DST/pixelitos-dark" 2>/dev/null || true
-gtk-update-icon-cache "$ICON_DST/pixelitos-light" 2>/dev/null || true
+  gtk-update-icon-cache "$ICON_DST/pixora"         2>/dev/null || true
+  gtk-update-icon-cache "$ICON_DST/pixelitos-dark" 2>/dev/null || true
+  gtk-update-icon-cache "$ICON_DST/pixelitos-light" 2>/dev/null || true
+fi
+
+# --- Wallpaper sync (best-effort; quiet when shell is not running) ---
+omarchy-shell -q background refresh || true
 HOOK
 
 chmod +x "$HOOK_FILE"

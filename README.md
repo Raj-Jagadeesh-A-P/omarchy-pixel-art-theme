@@ -20,7 +20,33 @@ bash ~/.config/omarchy/themes/pixel-art/install.sh
 
 This installs:
 - **Pixora icon pack** — symlinked to `~/.local/share/icons/` and applied via `icons.theme`
-- **Persistence hook** — lives in `~/.config/omarchy/hooks/theme-set.d/` and re-links the icons on every theme switch, so they never disappear when Omarchy re-stages themes
+- **Persistence hook** — lives in `~/.config/omarchy/hooks/theme-set.d/` and re-links the icons on every theme switch, so they never disappear when Omarchy re-stages themes. It also force-syncs the wallpaper after each switch (Quattro's shell reads the background symlink only at startup or via IPC)
+
+## Wallpapers
+
+Seven bundled pixel-art backgrounds live in [`backgrounds/`](backgrounds/) and install with the theme.
+
+- **Super + Ctrl + Space** — open the background switcher
+- Or **Super + Alt + Space** → **Style** → **Background**
+
+If the desktop ever shows a stale image after a theme switch, refresh it manually:
+
+```bash
+omarchy-shell background refresh
+```
+
+## Bar tweaks (optional)
+
+The Quattro bar layout is configured in `~/.config/omarchy/shell.json`. To match a classic Waybar setup:
+
+- **12-hour clock**: set the clock widget's `"format"` to `"dddd hh:mm A"`
+- **CPU launcher**: insert this entry into `bar.layout.right` (a static Nerd Font icon that opens btop):
+
+```json
+{ "id": "cpu", "type": "command", "text": "󰍛", "tooltip": "CPU — click to open btop", "onClick": "omarchy-launch-or-focus-tui btop" }
+```
+
+The workspaces widget already ships the retro look: numbered workspaces 1–5 persistent (up to 10) with a diamond marker on the active one. Reorder or move widgets by dragging them directly on the bar; see `omarchy plugin list` for all available widgets.
 
 ## Color Palette
 
