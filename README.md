@@ -19,8 +19,14 @@ bash ~/.config/omarchy/themes/pixel-art/install.sh
 ```
 
 This installs:
-- **Pixora icon pack** — symlinked to `~/.local/share/icons/` and applied via `icons.theme`
-- **Persistence hook** — lives in `~/.config/omarchy/hooks/theme-set.d/` and re-links the icons on every theme switch, so they never disappear when Omarchy re-stages themes. It also force-syncs the wallpaper after each switch (Quattro's shell reads the background symlink only at startup or via IPC)
+- **Pixora icon pack** — symlinked to `~/.local/share/icons/` and applied via `icons.theme`. The links point at the theme clone rather than Omarchy's staged copy, because staging strips symlinks and the pack keeps ~1049 icon aliases (plus `pixelitos-light/128`) as symlinks
+- **Pixel-art top bar** — deploys `shell.json`, `shell.toml` (`size-horizontal = 30`), `bar/modules/arch-menu.qml` and the `user.pill-bar` plugin into `~/.config/omarchy/`, then rescans plugins and reloads the shell. Existing files are backed up with a `.bak.<timestamp>` suffix. Pass `--no-bar` to skip this step
+- **Persistence hook** — lives in `~/.config/omarchy/hooks/theme-set.d/` and re-links the icons on every pixel-art theme switch, so they never disappear when Omarchy re-stages themes. It also force-syncs the wallpaper after each switch (Quattro's shell reads the background symlink only at startup or via IPC)
+
+```bash
+# Keep your existing bar configuration:
+bash ~/.config/omarchy/themes/pixel-art/install.sh --no-bar
+```
 
 ## Wallpapers
 
@@ -35,18 +41,15 @@ If the desktop ever shows a stale image after a theme switch, refresh it manuall
 omarchy-shell background refresh
 ```
 
-## Bar tweaks (optional)
+## Top bar
 
-The Quattro bar layout is configured in `~/.config/omarchy/shell.json`. To match a classic Waybar setup:
+`install.sh` deploys the pixel-art pill bar, which uses the custom `user.pill-bar` plugin (three oval pills, 30px tall) plus the retro arch menu on the left. The layout lives in `~/.config/omarchy/shell.json`; size and font are set in `~/.config/omarchy/shell.toml`.
 
-- **12-hour clock**: set the clock widget's `"format"` to `"dddd hh:mm A"`
-- **CPU launcher**: insert this entry into `bar.layout.right` (a static Nerd Font icon that opens btop):
+- Customize widgets by editing `~/.config/omarchy/shell.json`, dragging widgets on the bar, or via `omarchy plugin list`
+- Change bar height with `[bar] size-horizontal` in `~/.config/omarchy/shell.toml`
+- To restore a previous configuration, copy back the matching `*.bak.<timestamp>` file
 
-```json
-{ "id": "cpu", "type": "command", "text": "󰍛", "tooltip": "CPU — click to open btop", "onClick": "omarchy-launch-or-focus-tui btop" }
-```
-
-The workspaces widget already ships the retro look: numbered workspaces 1–5 persistent (up to 10) with a diamond marker on the active one. Reorder or move widgets by dragging them directly on the bar; see `omarchy plugin list` for all available widgets.
+The clock ships with a 12-hour format (`dddd hh:mm AP`). The workspaces widget uses numbered workspaces 1–5 persistent (up to 10) with a diamond marker on the active one.
 
 ## Color Palette
 
